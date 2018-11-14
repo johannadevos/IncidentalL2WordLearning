@@ -355,6 +355,7 @@ logit2per = function(X){return(exp(X)/(1+exp(X)))}
 
 # Change factor levels for TestingMoment
 data$TestingMoment <- factor(data$TestingMoment, levels = c("Main2", "Main4", "Post", "FollowUp"))
+data$TestingMoment <- factor(data$TestingMoment, levels = c("Main4", "Main2", "Post", "FollowUp"))
 data$TestingMoment <- factor(data$TestingMoment, levels = c("FollowUp", "Main2", "Main4", "Post"))
 data$TestingMoment <- factor(data$TestingMoment, levels = c("Post", "Main2", "Main4", "FollowUp"))
 data$Condition <- factor(data$Condition, levels = c("Experimental", "Control"))
@@ -485,3 +486,25 @@ binnedplot(fitted(model_hb2), resid(model_hb2, type = "response"), cex.pts=1, co
 
 # Save workspace
 save.image(file="Workspace.RData")
+
+
+## SEPARATE ANALYSES FOR LEARNING AND RETENTION
+main <- data[data$TestingMoment=="Main2" | data$TestingMoment=="Main4",]
+
+model_1 <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
+                   1 + Condition*TestingMoment + Condition*Cognate + Condition*RetentionInterval + 
+                   (1+Cognate+TestingMoment+RetentionInterval|Participant) + 
+                   (1+Condition+TestingMoment+RetentionInterval|Word), 
+                 data = main, family = 'binomial', control = glmerControl(
+                   optimizer = "bobyqa", optCtrl=list(maxfun=1e5)))
+summary(model_1)
+
+post <- data[data$TestingMoment!="Main2" & data$Condition=="Experimental",]
+
+model_2 <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
+                   1 + TestingMoment + Cognate + RetentionInterval + 
+                   (1+Cognate+TestingMoment+RetentionInterval|Participant) + 
+                   (1+TestingMoment+RetentionInterval|Word), 
+                 data = post, family = 'binomial', control = glmerControl(
+                   optimizer = "bobyqa", optCtrl=list(maxfun=1e5)))
+summary(model_2)
