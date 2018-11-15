@@ -749,7 +749,7 @@ data_post <- data[data$TestingMoment!="Main2" & data$Condition=="Experimental",]
 # Relevel
 data$TestingMoment <- factor(data$TestingMoment, levels = c("Main4", "Post", "FollowUp"))
 
-# Models
+# No random slopes
 model_post <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
                       1 + TestingMoment + Cognate + RetentionInterval + 
                       (1|Participant) + 
@@ -757,29 +757,92 @@ model_post <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~
                     data = data_post, family = 'binomial', control = glmerControl(
                       optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_post)
 
+summary(rePCA(model_post))
+
+# Adding random slope of Cognate over Participant
 model_post_cogn_p <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
-                      1 + TestingMoment + Cognate + RetentionInterval + 
+                      1 + Cognate + TestingMoment + RetentionInterval + 
                       (1+Cognate|Participant) + 
                       (1|Word), 
                     data = data_post, family = 'binomial', control = glmerControl(
                       optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_post_cogn_p)
 
 anova(model_post, model_post_cogn_p)
+summary(rePCA(model_post_cogn_p))
 
+# Adding random slope of TestingMoment over Word
 model_post_tm_w <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
-                      1 + TestingMoment + Cognate + RetentionInterval + 
+                      1 + Cognate + TestingMoment + RetentionInterval + 
                       (1+Cognate|Participant) + 
                       (1+TestingMoment|Word), 
                     data = data_post, family = 'binomial', control = glmerControl(
                       optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_post_tm_w)
 
 anova(model_post_cogn_p, model_post_tm_w)
+summary(rePCA(model_post_tm_w))
 
+# Adding random slope of TestingMoment over Participant
 model_post_tm_p <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
-                   1 + TestingMoment + Cognate + RetentionInterval + 
+                   1 + Cognate + TestingMoment + RetentionInterval + 
                    (1+Cognate+TestingMoment|Participant) + 
                    (1+TestingMoment|Word), 
                  data = data_post, family = 'binomial', control = glmerControl(
                    optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_post_tm_p)
 
 anova(model_post_tm_w, model_post_tm_p)
+summary(rePCA(model_post_tm_p))
+
+# Adding random slope of RetentionInterval over Word
+model_post_ri_w <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
+                           1 + Cognate + TestingMoment + RetentionInterval + 
+                           (1+Cognate+TestingMoment|Participant) + 
+                           (1+TestingMoment+RetentionInterval|Word), 
+                         data = data_post, family = 'binomial', control = glmerControl(
+                           optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_post_ri_w)
+
+anova(model_post_tm_p, model_post_ri_w)
+summary(rePCA(model_post_ri_w))
+
+# Adding random slope of RetentionInterval over Participant
+model_post_ri_p <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
+                           1 + Cognate + TestingMoment + RetentionInterval + 
+                           (1+Cognate+TestingMoment+RetentionInterval|Participant) + 
+                           (1+TestingMoment+RetentionInterval|Word), 
+                         data = data_post, family = 'binomial', control = glmerControl(
+                           optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_post_ri_p)
+
+anova(model_post_ri_w, model_post_ri_p)
+summary(rePCA(model_post_ri_p))
+
+# Adding random slope of Cognate:TestingMoment over Participant
+model_post_cogn_tm_p <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
+                           1 + Cognate + TestingMoment + RetentionInterval + 
+                           (1+Cognate+TestingMoment+RetentionInterval+Cognate:TestingMoment|Participant) + 
+                           (1+TestingMoment+RetentionInterval|Word), 
+                         data = data_post, family = 'binomial', control = glmerControl(
+                           optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_post_cogn_tm_p)
+
+anova(model_post_ri_p, model_post_cogn_tm_p)
+summary(rePCA(model_post_cogn_tm_p))
+
+# Adding random slope of Cognate:RetentionInterval over Participant
+model_post_cogn_ri_p <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
+                                1 + Cognate + TestingMoment + RetentionInterval + 
+                                (1+Cognate+TestingMoment+RetentionInterval+Cognate:TestingMoment+Cognate:RetentionInterval|Participant) + 
+                                (1+TestingMoment+RetentionInterval|Word), 
+                              data = data_post, family = 'binomial', control = glmerControl(
+                                optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_post_cogn_ri_p)
+
+anova(model_post_cogn_tm_p, model_post_cogn_ri_p)
+summary(rePCA(model_post_cogn_ri_p)) # Not supported by the data
+
+# Adding random slope of TestingMoment:RetentionInterval over Word
+model_post_tm_ri_w <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
+                                1 + Cognate + TestingMoment + RetentionInterval + 
+                                (1+Cognate+TestingMoment+RetentionInterval+Cognate:TestingMoment|Participant) + 
+                                (1+TestingMoment+RetentionInterval+TestingMoment:RetentionInterval|Word), 
+                              data = data_post, family = 'binomial', control = glmerControl(
+                                optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_post_tm_ri_w)
+
+anova(model_post_cogn_tm_p, model_post_tm_ri_w)
+summary(rePCA(model_post_tm_ri_w))
