@@ -489,22 +489,101 @@ save.image(file="Workspace.RData")
 
 
 ## SEPARATE ANALYSES FOR LEARNING AND RETENTION
-main <- data[data$TestingMoment=="Main2" | data$TestingMoment=="Main4",]
 
-model_1 <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
+## Learning phase
+
+# Subset data
+data_main <- data[data$TestingMoment=="Main2" | data$TestingMoment=="Main4",]
+
+# Model without random slopes
+model_main <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
                    1 + Condition*TestingMoment + Condition*Cognate + Condition*RetentionInterval + 
-                   (1+Cognate+TestingMoment+RetentionInterval|Participant) + 
-                   (1+Condition+TestingMoment+RetentionInterval|Word), 
-                 data = main, family = 'binomial', control = glmerControl(
-                   optimizer = "bobyqa", optCtrl=list(maxfun=1e5)))
-summary(model_1)
+                   (1|Participant) + 
+                   (1|Word), 
+                 data = data_main, family = 'binomial', control = glmerControl(
+                   optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_main)
 
-post <- data[data$TestingMoment!="Main2" & data$Condition=="Experimental",]
+# Adding random slope of Cognate over Participant
+model_main_cogn_p <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
+                        1 + Condition*TestingMoment + Condition*Cognate + Condition*RetentionInterval + 
+                        (1+Cognate|Participant) + 
+                        (1|Word), 
+                      data = data_main, family = 'binomial', control = glmerControl(
+                        optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_main_cogn_p)
 
-model_2 <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
+anova(model_main, model_main_cogn_p) # Significant improvement
+
+# Adding random slope of Condition over Word
+model_main_cond_w <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
+                        1 + Condition*TestingMoment + Condition*Cognate + Condition*RetentionInterval + 
+                        (1+Cognate|Participant) + 
+                        (1+Condition|Word), 
+                      data = data_main, family = 'binomial', control = glmerControl(
+                        optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_main_cond_w)
+
+anova(model_main_cogn_p, model_main_cond_w) # Significant improvement
+
+# Adding random slope of TestingMoment over Participant
+model_main_tm_p <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
+                             1 + Condition*TestingMoment + Condition*Cognate + Condition*RetentionInterval + 
+                             (1+Cognate+TestingMoment|Participant) + 
+                             (1+Condition|Word), 
+                           data = data_main, family = 'binomial', control = glmerControl(
+                             optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_main_tm_p)
+
+anova(model_main_cond_w, model_main_tm_p) # Significant improvement
+
+# Adding random slope of TestingMoment over Word
+model_main_tm_w <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
+                           1 + Condition*TestingMoment + Condition*Cognate + Condition*RetentionInterval + 
+                           (1+Cognate+TestingMoment|Participant) + 
+                           (1+Condition+TestingMoment|Word), 
+                         data = data_main, family = 'binomial', control = glmerControl(
+                           optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_main_tm_w)
+
+anova(model_main_tm_p, model_main_tm_w) # Significant improvement
+
+# Adding random slope of RetentionInterval over Participant
+model_main_ri_p <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
+                           1 + Condition*TestingMoment + Condition*Cognate + Condition*RetentionInterval + 
+                           (1+Cognate+TestingMoment+RetentionInterval|Participant) + 
+                           (1+Condition+TestingMoment|Word), 
+                         data = data_main, family = 'binomial', control = glmerControl(
+                           optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_main_ri_p)
+
+anova(model_main_tm_w, model_main_ri_p) # Significant improvement
+
+# Adding random slope of RetentionInterval over Word
+# Warning message: failed to converge
+model_main_ri_w <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
+                           1 + Condition*TestingMoment + Condition*Cognate + Condition*RetentionInterval + 
+                           (1+Cognate+TestingMoment+RetentionInterval|Participant) + 
+                           (1+Condition+TestingMoment+RetentionInterval|Word), 
+                         data = data_main, family = 'binomial', control = glmerControl(
+                           optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_main_ri_w)
+
+anova(model_main_ri_p, model_main_ri_w) # Significant improvement
+
+# Removing random slope of RetentionInterval over Word, adding fixed effect of Memory
+model_main_mem <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
+                           1 + Condition*TestingMoment + Condition*Cognate + Condition*RetentionInterval + Memory +
+                           (1+Cognate+TestingMoment+RetentionInterval|Participant) + 
+                           (1+Condition+TestingMoment|Word), 
+                         data = data_main, family = 'binomial', control = glmerControl(
+                           optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_main_mem)
+
+anova(model_main_ri_p, model_main_mem) # Significant improvement
+
+
+## Long-term retention
+
+# Subset data
+data_post <- data[data$TestingMoment!="Main2" & data$Condition=="Experimental",]
+
+model_post <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
                    1 + TestingMoment + Cognate + RetentionInterval + 
                    (1+Cognate+TestingMoment+RetentionInterval|Participant) + 
                    (1+TestingMoment+RetentionInterval|Word), 
-                 data = post, family = 'binomial', control = glmerControl(
+                 data = data_post, family = 'binomial', control = glmerControl(
                    optimizer = "bobyqa", optCtrl=list(maxfun=1e5)))
 summary(model_2)
