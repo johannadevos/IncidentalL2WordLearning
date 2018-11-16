@@ -57,7 +57,7 @@ table(table(data6$Participant[data6$TestingMoment=="Main2"]))
 data <- data6
 
 # Remove variables that are no longer needed
-rm(data2, data3, data4, data5, data6)
+rm(data2, data3, data4, data5)
 
 
 ## DESCRIPTIVES
@@ -68,6 +68,14 @@ count(results, c("Condition", "TestingMoment")) # Requires plyr package
 
 # How many cognates and non-cognates per participant?
 count(data[data$TestingMoment!="FollowUp",], c("Participant", "Cognate"))
+
+# Optionally: run the following lines to obtain descriptives for the learning and retention phase separately
+learn <- data6[data6$TestingMoment=="Main2" | data6$TestingMoment=="Main4",]; data <- learn
+retention <- data6[data6$TestingMoment=="Post" | data6$TestingMoment=="FollowUp",]; data <- retention
+
+# If you want to obtain descriptives for the complete data set, use:
+data <- data6
+
 
 ## Average score for all combinations of factor levels
 
@@ -87,12 +95,6 @@ tapply(aggr$Score*100, aggr$Info, t.test) # 95% confidence intervals
 
 # Alternatively
 aggregate(aggr$Score*100, list(aggr$Info), mean)
-
-# Means and confidence intervals, not assuming normality
-# NB: this is no 'macro'-average over participants
-# http://stats.stackexchange.com/questions/37918/why-is-the-error-estimated-adjustment-a-is-na-generated-from-r-boot-package, http://stats.stackexchange.com/questions/16516/how-can-i-calculate-the-confidence-interval-of-a-mean-in-a-non-normally-distribu, https://cran.r-project.org/web/packages/simpleboot/simpleboot.pdf)
-b.mean <- one.boot(data$Score[data$Condition=="Control" & data$TestingMoment == "Main2" & data$Cognate=="Non-cognate" & data$RetentionInterval==3], mean, R=5000)
-b.mean$t0; boot.ci(b.mean)
 
 ## Average score for each factor separately (split by Condition)
 
@@ -151,6 +153,9 @@ x <- xtabs(~ Correct + Cognate + Condition, data[data$TestingMoment!="FollowUp",
 #prop.table(x)
 
 x[1]/sum(x[1:3])*100 # Manually calculate percentages within each factor level
+
+# Go back to the complete data set
+data <- data6
 
 
 ## DATA VISUALISATION
