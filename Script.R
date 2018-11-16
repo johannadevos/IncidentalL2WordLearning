@@ -846,3 +846,14 @@ model_post_tm_ri_w <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelat
 
 anova(model_post_cogn_tm_p, model_post_tm_ri_w)
 summary(rePCA(model_post_tm_ri_w))
+# This is the final retention model
+
+# Adding random slope of TestingMoment:RetentionInterval over Participant
+model_post_tm_ri_p <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
+                              1 + Cognate + TestingMoment + RetentionInterval + 
+                              (1+Cognate+TestingMoment+RetentionInterval+Cognate:TestingMoment+TestingMoment:RetentionInterval|Participant) + 
+                              (1+TestingMoment+RetentionInterval+TestingMoment:RetentionInterval|Word), 
+                            data = data_post, family = 'binomial', control = glmerControl(
+                              optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_post_tm_ri_p)
+
+# Failed to converge
