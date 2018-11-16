@@ -56,6 +56,9 @@ table(table(data6$Participant[data6$TestingMoment=="Main2"]))
 
 data <- data6
 
+# Remove variables that are no longer needed
+rm(data2, data3, data4, data5, data6)
+
 
 ## DESCRIPTIVES
 
