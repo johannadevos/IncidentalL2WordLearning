@@ -1,5 +1,6 @@
-### Script for the analysis of: "High learning rates for interactive L2 vocabulary acquisition in a lab-based immersion setting"
-### Written by Johanna F. de Vos
+### This script contains the data analysis of the following article:
+### De Vos, J. F., Schriefers, H., Ten Bosch, L., & Lemhöfer, K. (2018).
+### Interactive L2 vocabulary acquisition in a lab-based immersion setting. Manuscript submitted for publication.
 
 # Libraries
 library(lme4); library(ggplot2); library(plyr); library(simpleboot); library(Hmisc); library(arm)
