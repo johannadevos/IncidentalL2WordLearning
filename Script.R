@@ -365,7 +365,6 @@ logit2per = function(X){return(exp(X)/(1+exp(X)))} # Or use in-built function 'p
 
 # Changing the levels of Condition
 data$Condition <- factor(data$Condition, levels = c("Experimental", "Control"))
-data$Condition <- factor(data$Condition, levels = c("Control", "Experimental"))
 
 
 ## SEPARATE ANALYSES FOR LEARNING AND RETENTION
@@ -549,6 +548,7 @@ model_main_cond_tm_ri_p <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrect
                               (1+Condition+TestingMoment+RetentionInterval+Condition:RetentionInterval+TestingMoment:RetentionInterval|Word), 
                             data = data_main, family = 'binomial', control = glmerControl(
                               optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_main_cond_tm_ri_p)
+# This is the learning model
 
 anova(model_main_tm_ri_p, model_main_cond_tm_ri_p) # Significant improvement
 summary(rePCA(model_main_cond_tm_ri_p))
@@ -571,7 +571,7 @@ model_main_mem_cond_w <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRe
                              (1|Participant) + 
                              (1+Condition|Word), 
                            data = data_main, family = 'binomial', control = glmerControl(
-                             optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_main_cond_w_mem)
+                             optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_main_mem_cond_w)
 
 # Adding random slope of Cognate over Participant
 model_main_mem_cogn_p <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
@@ -651,7 +651,7 @@ anova(model_main_ri_p, model_main_mem) # Significant improvement
 data_post <- data[data$TestingMoment!="Main2" & data$Condition=="Experimental",]
 
 # Relevel
-data$TestingMoment <- factor(data$TestingMoment, levels = c("Main4", "Post", "FollowUp"))
+data_post$TestingMoment <- factor(data_post$TestingMoment, levels = c("Main4", "Post", "FollowUp"))
 
 # No random slopes
 model_post <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
