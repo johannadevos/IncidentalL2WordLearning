@@ -689,6 +689,14 @@ anova(model_post_cogn_tm_p, model_post_tm_ri_w)
 summary(rePCA(model_post_tm_ri_w))
 # This is the final retention model
 
+# Model fit for the final retention model
+model_post_final <- model_post_tm_ri_w
+
+# Inspect residuals
+binnedplot(fitted(model_post_final), resid(model_post_final, type = "response"), cex.pts=1, col.int="black", xlab = "Estimated score (as probability)")
+# fitted(model_main_final) is identical to logit2per(predict(model_main_final))
+# Thus, 'fitted' gives probabilities, while 'predict' gives logit values
+
 # Adding random slope of TestingMoment:RetentionInterval over Participant
 model_post_tm_ri_p <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
                               1 + Cognate + TestingMoment + RetentionInterval + 
