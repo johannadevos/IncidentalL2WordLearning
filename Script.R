@@ -696,8 +696,17 @@ model_post_tm_ri_p <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelat
                               (1+TestingMoment+RetentionInterval+TestingMoment:RetentionInterval|Word), 
                             data = data_post, family = 'binomial', control = glmerControl(
                               optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_post_tm_ri_p)
-
 # Failed to converge
+
+# Relevel the final model so that FollowUp becomes the intercept
+data_post$TestingMoment <- factor(data_post$TestingMoment, levels = c("FollowUp", "Main4", "Post"))
+
+model_post_tm_ri_w_fu <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
+                              1 + Cognate + TestingMoment + RetentionInterval + 
+                              (1+Cognate+TestingMoment+RetentionInterval+Cognate:TestingMoment|Participant) + 
+                              (1+TestingMoment+RetentionInterval+TestingMoment:RetentionInterval|Word), 
+                            data = data_post, family = 'binomial', control = glmerControl(
+                              optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_post_tm_ri_w_fu)
 
 
 ## ANALYSING ALL THE DATA IN ONE MODEL (THIS APPROACH IS NOT USED IN THE ARTICLE)
