@@ -361,21 +361,19 @@ lm.beta(item_model)
 ### MODELLING
 
 # Define function to calculate probability from logit
-logit2per = function(X){return(exp(X)/(1+exp(X)))}
+logit2per = function(X){return(exp(X)/(1+exp(X)))} # Or use in-built function 'plogis'
 
-# Change factor levels for TestingMoment
-data$TestingMoment <- factor(data$TestingMoment, levels = c("Main2", "Main4", "Post", "FollowUp"))
-data$TestingMoment <- factor(data$TestingMoment, levels = c("Main4", "Main2", "Post", "FollowUp"))
-data$TestingMoment <- factor(data$TestingMoment, levels = c("FollowUp", "Main2", "Main4", "Post"))
-data$TestingMoment <- factor(data$TestingMoment, levels = c("Post", "Main2", "Main4", "FollowUp"))
+# Changing the levels of Condition
 data$Condition <- factor(data$Condition, levels = c("Experimental", "Control"))
 data$Condition <- factor(data$Condition, levels = c("Control", "Experimental"))
 
 
-## MODEL SELECTION
+## SEPARATE ANALYSES FOR LEARNING AND RETENTION
 
-## Explore different random-effects (RE) structures following Bates et al. (2015)
-## First, find the number of dimensions in the RE structure that are supported by the data
+## Learning phase
+
+# Subset data
+data_main <- data[data$TestingMoment=="Main2" | data$TestingMoment=="Main4",]
 
 # Define rePCA function (Bates, 2015, retrieved from https://github.com/dmbates/RePsychLing/blob/master/R/rePCA.R)
 rePCA <- function(x) UseMethod('rePCA')
@@ -401,111 +399,7 @@ summary.prcomplist <- function(object,...) {
   lapply(object,summary)
 }
 
-# Model A
-model_a <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
-                   1 + Condition*TestingMoment + Condition*Cognate + Condition*RetentionInterval + 
-                   (1+Cognate+TestingMoment+RetentionInterval|Participant) + 
-                   (1+Condition+TestingMoment+RetentionInterval|Word), 
-                 data = data, family = 'binomial', control = glmerControl(
-                   optimizer = "bobyqa", optCtrl=list(maxfun=1e5)))
-summary(model_a, correlation = "false")
-
-# Run PCA on model A
-rePCA(model_a) 
-summary(rePCA(model_a)) # All dimensions are supported by the data
-# Six levels for Participant: Intercept + (Levels of TM-1) + (Levels of CS-1) + (Levels of RI-1) = 1 + 3 + 1 + 1
-# Six levels for Word: Intercept + (Levels of TM-1) + (Levels of Condition-1) + (Levels of RI-1) = 1 + 3 + 1 + 1
-
-# Model B
-model_b <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
-                   1 + Condition*TestingMoment + Condition*Cognate + Condition*RetentionInterval + 
-                   (1+Cognate+TestingMoment+RetentionInterval|Participant) + 
-                   (1+Condition+TestingMoment+RetentionInterval+Condition:TestingMoment|Word), 
-                 data = data, family = 'binomial', control = glmerControl(
-                   optimizer = "bobyqa", optCtrl=list(maxfun=1e5)))
-summary(model_b, correlation = "false")
-
-# Run PCA on model B
-rePCA(model_b)
-summary(rePCA(model_b))
-# Nine levels for Word: Intercept + (Levels of TM-1) + (Levels of Condition-1) + (Levels of RI-1) + ((Levels of TM-1) * (Levels of Condition-1)) = 1 + 3 + 1 + 1 + 3
-
-# Model C
-model_c <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
-                   1 + Condition*TestingMoment + Condition*Cognate + Condition*RetentionInterval + 
-                   (1+Cognate+TestingMoment+RetentionInterval+Cognate:RetentionInterval|Participant) + 
-                   (1+Condition+TestingMoment+RetentionInterval|Word), 
-                 data = data, family = 'binomial', control = glmerControl(
-                   optimizer = "bobyqa", optCtrl=list(maxfun=1e5)))
-summary(model_c, correlation = "false")
-
-# Run PCA on model C
-rePCA(model_c)
-summary(rePCA(model_c))
-
-# Model D
-model_d <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
-                   1 + Condition*TestingMoment + Condition*Cognate + Condition*RetentionInterval + 
-                   (1+Cognate+TestingMoment+RetentionInterval+Cognate:RetentionInterval|Participant) + 
-                   (1+Condition+TestingMoment+RetentionInterval+TestingMoment:RetentionInterval|Word), 
-                 data = data, family = 'binomial', control = glmerControl(
-                   optimizer = "bobyqa", optCtrl=list(maxfun=1e5)))
-summary(model_d, correlation = "false")
-
-# Run PCA on model D
-rePCA(model_d)
-summary(rePCA(model_d)) # All dimensions are supported.
-
-## Then, investigate the contribution of the included variance components
-
-# Test the added value of the random effect of Testingmoment:RetentionInterval over Word
-anova(model_c, model_d) 
-
-# Test the added value of the random effect of CognateStatus:RetentionInterval over Participant
-model_d_2 <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
-                     1 + Condition*TestingMoment + Condition*Cognate + Condition*RetentionInterval + 
-                     (1+Cognate+TestingMoment+RetentionInterval|Participant) + 
-                     (1+Condition+TestingMoment+RetentionInterval+TestingMoment:RetentionInterval|Word), 
-                   data = data, family = 'binomial', control = glmerControl(
-                     optimizer = "bobyqa", optCtrl=list(maxfun=1e5)))
-anova(model_d, model_d_2)
-
-## The final model: Hypothesis-based (HB) model (equal to model_d)
-model_hb <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
-                    1 + Condition*TestingMoment + Condition*Cognate + Condition*RetentionInterval + 
-                    (1+Cognate+TestingMoment+RetentionInterval+Cognate:RetentionInterval|Participant) + 
-                    (1+Condition+TestingMoment+RetentionInterval+TestingMoment:RetentionInterval|Word), 
-                  data = data, family = 'binomial', control = glmerControl(
-                    optimizer = "bobyqa", optCtrl=list(maxfun=1e5)))
-summary(model_hb, correlation = "true")
-# None of variance components is close to or at zero
-# None of correlations between random effects is close to 1 (see Bates et al., 2015)
-# Thus, model is not overparameterised
-
-## MODEL FIT
-
-# Inspect residuals
-binnedplot(fitted(model_hb), resid(model_hb, type = "response"), cex.pts=1, col.int="black", xlab = "Estimated score (as probability)")
-# fitted(model_hb) is identical to logit2per(predict(model_hb))
-# Thus, 'fitted' gives probabilities, while 'predict' gives logit values
-
-# Compare to model with no interactions in RE structure
-model_hb2 <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 1 + Condition*TestingMoment + Condition*Cognate + Condition*RetentionInterval + (1+Cognate+TestingMoment+RetentionInterval|Participant) + (1+Condition+TestingMoment+RetentionInterval|Word), data = data, family = 'binomial', control = glmerControl(optimizer = "bobyqa", optCtrl=list(maxfun=1e5)))
-summary(model_hb2)
-binnedplot(fitted(model_hb2), resid(model_hb2, type = "response"), cex.pts=1, col.int="black", xlab = "Estimated score (as probability)")
-
-# Save workspace
-save.image(file="Workspace.RData")
-
-
-## SEPARATE ANALYSES FOR LEARNING AND RETENTION
-
-## Learning phase
-
-# Subset data
-data_main <- data[data$TestingMoment=="Main2" | data$TestingMoment=="Main4",]
-
-# Models without Memory
+# Start model comparisons (not including Memory)
 
 # Model without random slopes
 model_main <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
@@ -867,3 +761,111 @@ model_post_tm_ri_p <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelat
                               optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_post_tm_ri_p)
 
 # Failed to converge
+
+
+## ANALYSING ALL THE DATA IN ONE MODEL (THIS APPROACH IS NOT USED IN THE ARTICLE)
+
+# Change factor levels for TestingMoment
+data$TestingMoment <- factor(data$TestingMoment, levels = c("Main4", "Main2", "Post", "FollowUp"))
+data$TestingMoment <- factor(data$TestingMoment, levels = c("Main2", "Main4", "Post", "FollowUp"))
+data$TestingMoment <- factor(data$TestingMoment, levels = c("FollowUp", "Main2", "Main4", "Post"))
+data$TestingMoment <- factor(data$TestingMoment, levels = c("Post", "Main2", "Main4", "FollowUp"))
+
+## Explore different random-effects (RE) structures following Bates et al. (2015)
+## First, find the number of dimensions in the RE structure that are supported by the data
+
+# Model A
+model_a <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
+                   1 + Condition*TestingMoment + Condition*Cognate + Condition*RetentionInterval + 
+                   (1+Cognate+TestingMoment+RetentionInterval|Participant) + 
+                   (1+Condition+TestingMoment+RetentionInterval|Word), 
+                 data = data, family = 'binomial', control = glmerControl(
+                   optimizer = "bobyqa", optCtrl=list(maxfun=1e5)))
+summary(model_a, correlation = "false")
+
+# Run PCA on model A
+rePCA(model_a) 
+summary(rePCA(model_a)) # All dimensions are supported by the data
+# Six levels for Participant: Intercept + (Levels of TM-1) + (Levels of CS-1) + (Levels of RI-1) = 1 + 3 + 1 + 1
+# Six levels for Word: Intercept + (Levels of TM-1) + (Levels of Condition-1) + (Levels of RI-1) = 1 + 3 + 1 + 1
+
+# Model B
+model_b <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
+                   1 + Condition*TestingMoment + Condition*Cognate + Condition*RetentionInterval + 
+                   (1+Cognate+TestingMoment+RetentionInterval|Participant) + 
+                   (1+Condition+TestingMoment+RetentionInterval+Condition:TestingMoment|Word), 
+                 data = data, family = 'binomial', control = glmerControl(
+                   optimizer = "bobyqa", optCtrl=list(maxfun=1e5)))
+summary(model_b, correlation = "false")
+
+# Run PCA on model B
+rePCA(model_b)
+summary(rePCA(model_b))
+# Nine levels for Word: Intercept + (Levels of TM-1) + (Levels of Condition-1) + (Levels of RI-1) + ((Levels of TM-1) * (Levels of Condition-1)) = 1 + 3 + 1 + 1 + 3
+
+# Model C
+model_c <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
+                   1 + Condition*TestingMoment + Condition*Cognate + Condition*RetentionInterval + 
+                   (1+Cognate+TestingMoment+RetentionInterval+Cognate:RetentionInterval|Participant) + 
+                   (1+Condition+TestingMoment+RetentionInterval|Word), 
+                 data = data, family = 'binomial', control = glmerControl(
+                   optimizer = "bobyqa", optCtrl=list(maxfun=1e5)))
+summary(model_c, correlation = "false")
+
+# Run PCA on model C
+rePCA(model_c)
+summary(rePCA(model_c))
+
+# Model D
+model_d <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
+                   1 + Condition*TestingMoment + Condition*Cognate + Condition*RetentionInterval + 
+                   (1+Cognate+TestingMoment+RetentionInterval+Cognate:RetentionInterval|Participant) + 
+                   (1+Condition+TestingMoment+RetentionInterval+TestingMoment:RetentionInterval|Word), 
+                 data = data, family = 'binomial', control = glmerControl(
+                   optimizer = "bobyqa", optCtrl=list(maxfun=1e5)))
+summary(model_d, correlation = "false")
+
+# Run PCA on model D
+rePCA(model_d)
+summary(rePCA(model_d)) # All dimensions are supported.
+
+## Then, investigate the contribution of the included variance components
+
+# Test the added value of the random effect of Testingmoment:RetentionInterval over Word
+anova(model_c, model_d) 
+
+# Test the added value of the random effect of CognateStatus:RetentionInterval over Participant
+model_d_2 <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
+                     1 + Condition*TestingMoment + Condition*Cognate + Condition*RetentionInterval + 
+                     (1+Cognate+TestingMoment+RetentionInterval|Participant) + 
+                     (1+Condition+TestingMoment+RetentionInterval+TestingMoment:RetentionInterval|Word), 
+                   data = data, family = 'binomial', control = glmerControl(
+                     optimizer = "bobyqa", optCtrl=list(maxfun=1e5)))
+anova(model_d, model_d_2)
+
+## The final model: Hypothesis-based (HB) model (equal to model_d)
+model_hb <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
+                    1 + Condition*TestingMoment + Condition*Cognate + Condition*RetentionInterval + 
+                    (1+Cognate+TestingMoment+RetentionInterval+Cognate:RetentionInterval|Participant) + 
+                    (1+Condition+TestingMoment+RetentionInterval+TestingMoment:RetentionInterval|Word), 
+                  data = data, family = 'binomial', control = glmerControl(
+                    optimizer = "bobyqa", optCtrl=list(maxfun=1e5)))
+summary(model_hb, correlation = "true")
+# None of variance components is close to or at zero
+# None of correlations between random effects is close to 1 (see Bates et al., 2015)
+# Thus, model is not overparameterised
+
+## MODEL FIT
+
+# Inspect residuals
+binnedplot(fitted(model_hb), resid(model_hb, type = "response"), cex.pts=1, col.int="black", xlab = "Estimated score (as probability)")
+# fitted(model_hb) is identical to logit2per(predict(model_hb))
+# Thus, 'fitted' gives probabilities, while 'predict' gives logit values
+
+# Compare to model with no interactions in RE structure
+model_hb2 <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 1 + Condition*TestingMoment + Condition*Cognate + Condition*RetentionInterval + (1+Cognate+TestingMoment+RetentionInterval|Participant) + (1+Condition+TestingMoment+RetentionInterval|Word), data = data, family = 'binomial', control = glmerControl(optimizer = "bobyqa", optCtrl=list(maxfun=1e5)))
+summary(model_hb2)
+binnedplot(fitted(model_hb2), resid(model_hb2, type = "response"), cex.pts=1, col.int="black", xlab = "Estimated score (as probability)")
+
+# Save workspace
+save.image(file="Workspace.RData")
