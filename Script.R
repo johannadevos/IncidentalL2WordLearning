@@ -553,6 +553,14 @@ model_main_cond_tm_ri_p <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrect
 anova(model_main_tm_ri_p, model_main_cond_tm_ri_p) # Significant improvement
 summary(rePCA(model_main_cond_tm_ri_p))
 
+# Model fit for the final model
+model_main_final <- model_main_cond_tm_ri_p
+
+# Inspect residuals
+binnedplot(fitted(model_main_final), resid(model_main_final, type = "response"), cex.pts=1, col.int="black", xlab = "Estimated score (as probability)")
+# fitted(model_main_final) is identical to logit2per(predict(model_main_final))
+# Thus, 'fitted' gives probabilities, while 'predict' gives logit values
+
 
 # Models with memory
 
