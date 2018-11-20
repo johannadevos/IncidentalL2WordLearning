@@ -561,6 +561,15 @@ binnedplot(fitted(model_main_final), resid(model_main_final, type = "response"),
 # fitted(model_main_final) is identical to logit2per(predict(model_main_final))
 # Thus, 'fitted' gives probabilities, while 'predict' gives logit values
 
+# Exploratory learning model with interactions between all fixed effects
+model_main_expl <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
+                                   1 + Condition*Cognate*TestingMoment*RetentionInterval + 
+                                   (1+Cognate*TestingMoment*RetentionInterval|Participant) + 
+                                   (1+Condition+TestingMoment+RetentionInterval+Condition:RetentionInterval+TestingMoment:RetentionInterval|Word), 
+                                 data = data_main, family = 'binomial', control = glmerControl(
+                                   optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_main_expl)
+summary(rePCA(model_main_expl))
+
 
 # Models with memory
 
@@ -715,6 +724,19 @@ model_post_tm_ri_w_fu <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRe
                               (1+TestingMoment+RetentionInterval+TestingMoment:RetentionInterval|Word), 
                             data = data_post, family = 'binomial', control = glmerControl(
                               optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_post_tm_ri_w_fu)
+
+# Relevel back to original order
+data_post$TestingMoment <- factor(data_post$TestingMoment, levels = c("Main4", "Post", "FollowUp"))
+
+# Exploratory retention model with interactions between all fixed effects
+model_post_expl <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
+                              1 + Cognate*TestingMoment*RetentionInterval + 
+                              (1+Cognate+TestingMoment+RetentionInterval+Cognate:TestingMoment|Participant) + 
+                              (1+TestingMoment+RetentionInterval+TestingMoment:RetentionInterval|Word), 
+                            data = data_post, family = 'binomial', control = glmerControl(
+                              optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_post_expl)
+
+summary(rePCA(model_post_expl))
 
 
 ## ANALYSING ALL THE DATA IN ONE MODEL (THIS APPROACH IS NOT USED IN THE ARTICLE)
