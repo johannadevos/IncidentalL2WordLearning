@@ -340,7 +340,7 @@ data_words %>%
   theme(axis.text.x = element_text(size = 13),
         axis.text.y = element_text(size = 10),
         text = element_text(size = 15)) +
-  labs(x = "Word\n", y = "\nAverage score at Main2 and Main4") +
+  labs(x = "Word\n", y = "\nAverage score at EF2 and EF4") +
   scale_fill_manual(values=c("#000000", "#56B4E9")) +
   scale_colour_manual(values=c("white", "white"), guide=FALSE) +
   coord_flip()
