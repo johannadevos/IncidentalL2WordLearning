@@ -176,8 +176,8 @@ data$Condition <- factor(data$Condition, levels = c("Experimental", "Control"))
   scale_linetype_discrete(name = "Lag", labels = c("3 trials", "7 trials")) +
   #scale_x_discrete(labels = c("Pre", "EF2", "EF4", "20min", "6mon")) + # Uncomment this line for the figure in the publication
   #scale_shape_manual(values=c(18, 16), name = "Condition") http://www.sthda.com/english/wiki/ggplot2-point-shapes#change-point-shapes-colors-and-sizes-manually
-  scale_shape_discrete(name = "Condition") + 
-  guides(color = guide_legend(order = 2), shape = guide_legend(order = 1), linetype = guide_legend(order = 0)) +
+  scale_shape_discrete(name = "Group") + 
+  guides(colour = guide_legend(order = 2), shape = guide_legend(order = 1, override.aes = list(colour="grey40")), linetype = guide_legend(order = 0)) +
   scale_color_manual(name = "Cognate status", values=c("#000000", "#56B4E9")) # Use this to get colours that are contrastive when printing in grayscale (add a + in the row above)
 
 #ggsave("Figure 1.tiff", dpi = 300)
