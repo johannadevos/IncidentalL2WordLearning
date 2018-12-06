@@ -270,7 +270,7 @@ t.test(part_mem$Memory[part_mem$Condition=="Experimental"], part_mem$Memory[part
 # Histogram of participant scores at Main2
 ggplot(data=part, aes(part$Score*100, fill = Condition)) + 
   geom_histogram(alpha=1, breaks=seq(0,100, by=10), col="white") +
-  labs(x = "\nScore at Main2", y = "Counts\n") +
+  labs(x = "\nAverage score after two exposures", y = "Counts\n") +
   theme(panel.grid.minor = element_blank(), text = element_text(size = 15), 
         axis.text.y = element_text(size = 15), axis.text.x = element_text(size = 15), 
         strip.text = element_text(size=15)) +
@@ -341,7 +341,7 @@ data_words %>%
         axis.text.y = element_text(size = 10),
         text = element_text(size = 15)) +
   labs(x = "Word\n", y = "\nAverage score at EF2 and EF4") +
-  scale_fill_manual(values=c("#000000", "#56B4E9")) +
+  scale_fill_manual(name = "Cognate status", values=c("#000000", "#56B4E9")) +
   scale_colour_manual(values=c("white", "white"), guide=FALSE) +
   coord_flip()
 
