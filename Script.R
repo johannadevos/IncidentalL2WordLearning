@@ -276,7 +276,7 @@ ggplot(data=part, aes(part$Score*100, fill = Condition)) +
         strip.text = element_text(size=15)) +
   scale_x_continuous(breaks=seq(0, 100, by = 10)) +
   scale_y_continuous(breaks=seq(0,14, by=1)) +
-  scale_fill_manual(values=c("#000000", "#56B4E9"))
+  scale_fill_manual(name = "Group", values=c("#000000", "#56B4E9"))
 
 
 ## CORRELATION MATRIX
