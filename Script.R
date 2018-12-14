@@ -163,7 +163,7 @@ data <- data6
 pd <- position_dodge(width = 0.1)
 data$TestingMoment <- factor(data$TestingMoment, levels = c("Pre", "Main2", "Main4", "Post", "FollowUp"))
 aggr$TestingMoment <- factor(aggr$TestingMoment, levels = c("Pre", "Main2", "Main4", "Post", "FollowUp"))
-data$Condition <- factor(data$Condition, levels = c("Experimental", "Control"))
+aggr$Condition <- factor(aggr$Condition, levels = c("Experimental", "Control"))
 
 # Both groups
 ggplot(aggr, aes(x = TestingMoment, y = Score*100, colour = Cognate, shape = Condition, group = interaction(Cognate,RetentionInterval,Condition))) +
@@ -174,7 +174,7 @@ ggplot(aggr, aes(x = TestingMoment, y = Score*100, colour = Cognate, shape = Con
   theme(text = element_text(size = 23), axis.text.y = element_text(size = 21), axis.text.x = element_text(size = 21), strip.text = element_text(size=23)) +
   labs(x = "\nTesting moment", y = "Score (% correct)\n") +
   scale_linetype_discrete(name = "Lag", labels = c("3 trials", "7 trials")) +
-  scale_x_discrete(labels = c("Pre", "EF2", "EF4", "20min", "6mon")) + # Uncomment this line for the figure in the publication
+  scale_x_discrete(labels = c("Pre", "EF2", "EF4", "20Min", "6Mon")) + # Uncomment this line for the figure in the publication
   #scale_shape_manual(values=c(18, 16), name = "Condition") http://www.sthda.com/english/wiki/ggplot2-point-shapes#change-point-shapes-colors-and-sizes-manually
   scale_shape_discrete(name = "Group") + 
   guides(colour = guide_legend(order = 2, override.aes = list(shape = 15)), shape = guide_legend(order = 1, override.aes = list(colour="grey40")), linetype = guide_legend(order = 0)) +
