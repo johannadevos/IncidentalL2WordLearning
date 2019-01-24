@@ -166,6 +166,7 @@ aggr$TestingMoment <- factor(aggr$TestingMoment, levels = c("Pre", "Main2", "Mai
 aggr$Condition <- factor(aggr$Condition, levels = c("Experimental", "Control"))
 
 # Both groups
+tiff("figures/Chapter 3 - Figure 1.tiff", units="in", width=11, height=6, res=300)
 ggplot(aggr, aes(x = TestingMoment, y = Score*100, colour = Cognate, shape = Condition, group = interaction(Cognate,RetentionInterval,Condition))) +
   stat_summary(fun.y = mean, geom = "point", size = 5, position = pd) + 
   stat_summary(fun.y = mean, geom = "line", aes(linetype = RetentionInterval), size = 1, position = pd) +
@@ -179,6 +180,7 @@ ggplot(aggr, aes(x = TestingMoment, y = Score*100, colour = Cognate, shape = Con
   scale_shape_discrete(name = "Group") + 
   guides(colour = guide_legend(order = 2, override.aes = list(shape = 15)), shape = guide_legend(order = 1, override.aes = list(colour="grey40")), linetype = guide_legend(order = 0)) +
   scale_color_manual(name = "Cognate status", values=c("#000000", "#56B4E9")) # Use this to get colours that are contrastive when printing in grayscale (add a + in the row above)
+dev.off()
 
 #ggsave("Figure 1.tiff", dpi = 300)
 
@@ -557,9 +559,11 @@ summary(rePCA(model_main_cond_tm_ri_p))
 model_main_final <- model_main_cond_tm_ri_p
 
 # Inspect residuals
+tiff("figures/Chapter 3 - Figure A.tiff", units="in", width=6, height=6, res=300)
 binnedplot(fitted(model_main_final), resid(model_main_final, type = "response"), cex.pts=1, col.int="black", xlab = "Estimated score (as probability)")
 # fitted(model_main_final) is identical to logit2per(predict(model_main_final))
 # Thus, 'fitted' gives probabilities, while 'predict' gives logit values
+dev.off()
 
 # Exploratory learning model with interactions between all fixed effects
 model_main_expl <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
@@ -702,9 +706,11 @@ summary(rePCA(model_post_tm_ri_w))
 model_post_final <- model_post_tm_ri_w
 
 # Inspect residuals
+tiff("figures/Chapter 3 - Figure C.tiff", units="in", width=6, height=6, res=300)
 binnedplot(fitted(model_post_final), resid(model_post_final, type = "response"), cex.pts=1, col.int="black", xlab = "Estimated score (as probability)")
 # fitted(model_main_final) is identical to logit2per(predict(model_main_final))
 # Thus, 'fitted' gives probabilities, while 'predict' gives logit values
+dev.off()
 
 # Adding random slope of TestingMoment:RetentionInterval over Participant
 model_post_tm_ri_p <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
