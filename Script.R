@@ -565,6 +565,12 @@ binnedplot(fitted(model_main_final), resid(model_main_final, type = "response"),
 # Thus, 'fitted' gives probabilities, while 'predict' gives logit values
 dev.off()
 
+# Also inspect residuals / create a binned plot for a learning model
+# without interactions in the random structure
+tiff("figures/Chapter 3 - Figure B.tiff", units="in", width=6, height=6, res=300)
+binnedplot(fitted(model_main_ri_p), resid(model_main_ri_p, type = "response"), cex.pts=1, col.int="black", xlab = "Estimated score (as probability)")
+dev.off()
+
 # Exploratory learning model with interactions between all fixed effects
 model_main_expl <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
                                    1 + Condition*Cognate*TestingMoment*RetentionInterval + 
