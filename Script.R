@@ -270,6 +270,7 @@ t.test(part$Lextale[part$Condition=="Experimental"], part$Lextale[part$Condition
 t.test(part_mem$Memory[part_mem$Condition=="Experimental"], part_mem$Memory[part_mem$Condition=="Control"])
 
 # Histogram of participant scores at Main2
+tiff("figures/Chapter 3 - Figure D.tiff", units="in", width=7, height=4, res=300)
 ggplot(data=part, aes(part$Score*100, fill = Condition)) + 
   geom_histogram(alpha=1, breaks=seq(0,100, by=10), col="white") +
   labs(x = "\nAverage score after two exposures", y = "Counts\n") +
@@ -279,7 +280,7 @@ ggplot(data=part, aes(part$Score*100, fill = Condition)) +
   scale_x_continuous(breaks=seq(0, 100, by = 10)) +
   scale_y_continuous(breaks=seq(0,14, by=1)) +
   scale_fill_manual(name = "Group", values=c("#000000", "#56B4E9"))
-
+dev.off()
 
 ## CORRELATION MATRIX
 
@@ -323,6 +324,7 @@ Main2_Main4_order <- data_words %>%
   as.character()
 
 # Plot
+tiff("figures/Chapter 3 - Figure E.tiff", units="in", width=6, height=9, res=300)
 data_words %>% 
   group_by(Word, Cognate) %>% 
   arrange(desc(Score)) %>%
@@ -346,6 +348,7 @@ data_words %>%
   scale_fill_manual(name = "Cognate status", values=c("#000000", "#56B4E9")) +
   scale_colour_manual(values=c("white", "white"), guide=FALSE) +
   coord_flip()
+dev.off()
 
 # Analysis: how can the results be explained?
 aggr_words2 <- aggregate(Score~Word+Cognate+Phonemes+Concreteness+L1Frequency, items[items$Condition=="Experimental",], mean)
