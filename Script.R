@@ -183,7 +183,7 @@ ggplot(aggr, aes(x = TestingMoment, y = Score*100, colour = Cognate, shape = Con
   scale_color_manual(name = "Cognate status", values=c("#000000", "#56B4E9")) # Use this to get colours that are contrastive when printing in grayscale (add a + in the row above)
 #dev.off()
 
-ggsave("Figure 1.jpeg", dpi = 300)
+ggsave("Figure1.jpeg", dpi = 300)
 
 
 ## Plot data as a function of trial nr. 
