@@ -1,6 +1,7 @@
 ### This script contains the data analysis of the following article:
-### De Vos, J. F., Schriefers, H., Ten Bosch, L., & Lemhöfer, K. (2018).
-### Interactive L2 vocabulary acquisition in a lab-based immersion setting. Manuscript submitted for publication.
+### De Vos, J. F., Schriefers, H., Ten Bosch, L., & Lemhöfer, K. (in press).
+### Interactive L2 vocabulary acquisition in a lab-based immersion setting. 
+### Language, Cognition and Neuroscience.
 
 # Libraries
 library(lme4); library(ggplot2); library(plyr); library(simpleboot); library(Hmisc); library(arm)
@@ -166,7 +167,7 @@ aggr$TestingMoment <- factor(aggr$TestingMoment, levels = c("Pre", "Main2", "Mai
 aggr$Condition <- factor(aggr$Condition, levels = c("Experimental", "Control"))
 
 # Both groups
-tiff("figures/Chapter 3 - Figure 1.tiff", units="in", width=11, height=6, res=300)
+#tiff("figures/Chapter 3 - Figure 1.tiff", units="in", width=11, height=6, res=300)
 ggplot(aggr, aes(x = TestingMoment, y = Score*100, colour = Cognate, shape = Condition, group = interaction(Cognate,RetentionInterval,Condition))) +
   stat_summary(fun.y = mean, geom = "point", size = 5, position = pd) + 
   stat_summary(fun.y = mean, geom = "line", aes(linetype = RetentionInterval), size = 1, position = pd) +
@@ -180,9 +181,9 @@ ggplot(aggr, aes(x = TestingMoment, y = Score*100, colour = Cognate, shape = Con
   scale_shape_discrete(name = "Group") + 
   guides(colour = guide_legend(order = 2, override.aes = list(shape = 15)), shape = guide_legend(order = 1, override.aes = list(colour="grey40")), linetype = guide_legend(order = 0)) +
   scale_color_manual(name = "Cognate status", values=c("#000000", "#56B4E9")) # Use this to get colours that are contrastive when printing in grayscale (add a + in the row above)
-dev.off()
+#dev.off()
 
-#ggsave("Figure 1.tiff", dpi = 300)
+ggsave("Figure 1.jpeg", dpi = 300)
 
 
 ## Plot data as a function of trial nr. 
