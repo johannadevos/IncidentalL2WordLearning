@@ -547,20 +547,20 @@ model_main_tm_ri_p <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelat
 anova(model_main_tm_ri_w, model_main_tm_ri_p) # Significant improvement
 summary(rePCA(model_main_tm_ri_p))
 
-# Adding random slope of the three-way interaction of Condition, TestingMoment and RetentionInterval over Participant
-model_main_cond_tm_ri_p <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
+# Adding random slope of the three-way interaction of Cognate, TestingMoment and RetentionInterval over Participant
+model_main_cogn_tm_ri_p <- glmer(cbind(PhonemesCorrectRelative,PhonemesIncorrectRelative) ~ 
                               1 + Condition*TestingMoment + Condition*Cognate + Condition*RetentionInterval + 
                               (1+Cognate*TestingMoment*RetentionInterval|Participant) + 
                               (1+Condition+TestingMoment+RetentionInterval+Condition:RetentionInterval+TestingMoment:RetentionInterval|Word), 
                             data = data_main, family = 'binomial', control = glmerControl(
-                              optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_main_cond_tm_ri_p)
+                              optimizer = "bobyqa", optCtrl=list(maxfun=1e5))); summary(model_main_cogn_tm_ri_p)
 # This is the learning model
 
-anova(model_main_tm_ri_p, model_main_cond_tm_ri_p) # Significant improvement
-summary(rePCA(model_main_cond_tm_ri_p))
+anova(model_main_tm_ri_p, model_main_cogn_tm_ri_p) # Significant improvement
+summary(rePCA(model_main_cogn_tm_ri_p))
 
 # Model fit for the final model
-model_main_final <- model_main_cond_tm_ri_p
+model_main_final <- model_main_cogn_tm_ri_p
 
 # Inspect residuals
 tiff("figures/Chapter 3 - Figure A.tiff", units="in", width=6, height=6, res=300)
